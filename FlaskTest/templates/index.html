@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload with Progress Bar</title>
+    <style>
+        body {
+            background-color: red;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .bar {
+            width: 0%;
+            height: 100%;
+            background-color: #00ff00;
+            border-radius: 10px;
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>File Upload</h2>
+        <form action="/" method="post" enctype="multipart/form-data" id="uploadForm">
+            <input type="file" name="file" id="file">
+            <br><br>
+            <input type="submit" value="Upload" id="uploadButton">
+        </form>
+        <div class="progress">
+            <div class="bar"></div>
+        </div>
+    </div>
+
+   
+    <script>
+        const fileInput = document.getElementById('file');
+        const progressBar = document.querySelector('.bar');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadButton = document.getElementById('uploadButton');
+    
+        uploadForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent form submission
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+            uploadButton.disabled = true; // Disable the submit button during upload
+    
+            const formData = new FormData();
+            formData.append('file', file);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/');
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const percent = (event.loaded / event.total) * 100;
+                    progressBar.style.width = percent + '%';
+                    progressBar.innerText = `${Math.round(percent)}%`; // Display the progress as text
+                }
+            });
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        window.location.href = '/progress-page'; // Redirect to progress.html
+                    } else {
+                        alert('Error uploading file. Please try again.');
+                    }
+                    uploadButton.disabled = false; // Enable the submit button after upload
+                    progressBar.style.width = '0%'; // Reset progress bar
+                    progressBar.innerText = ''; // Clear the progress text
+                    fileInput.value = ''; // Clear file input
+                }
+            };
+            xhr.send(formData);
+    
+            progressBar.style.width = '0%'; // Reset progress bar
+            progressBar.parentNode.style.display = 'block'; // Show progress bar
+        });
+    </script>
+    
+
+</body>
+</html>

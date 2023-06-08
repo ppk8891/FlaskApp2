@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Progress Page</title>
+    <style>
+        body {
+            background-color: red;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            color: #fff;
+        }
+
+        .progress-bar {
+            width: 400px;
+            height: 20px;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar .progress-fill {
+            height: 100%;
+            background-color: #337ab7;
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Progress Page</h2>
+        <div class="progress-bar">
+            <div id="progressBar" class="progress-fill"></div>
+        </div>
+    </div>
+
+    <script>
+       var eventSource = new EventSource('/progress');
+var progressBar = document.getElementById('progressBar');
+var progressBarContainer = progressBar.parentNode;
+
+eventSource.onmessage = function(event) {
+    var progressData = JSON.parse(event.data);
+    var progress = progressData.progress;
+    var percent = progressData.percent;
+
+    progressBar.style.width = percent + '%';
+    progressBar.innerHTML = percent + '%';
+
+    if (percent >= 100) {
+    progressBar.parentNode.style.display = 'none'; // Hide progress bar after reaching 100%
+    window.location.href = '/download'; // Redirect to download.html
+} else {
+    progressBar.parentNode.style.display = 'block';
+}
+
+};
+
+    </script>
+</body>
+</html>
